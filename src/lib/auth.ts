@@ -1,24 +1,36 @@
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
-import { redirect } from "next/navigation"
-import { createClient } from "./supabase/server"
+export async function requireUser() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-export async function requireSuperadmin(){
+  if (!user) redirect("/login");
+  return { supabase, user };
+}
 
-  const supabase = await createClient()
+export async function requireSuperadmin() {
+  const { supabase, user } = await requireUser();
 
-  const {data:{user}} = await supabase.auth.getUser()
-
-  if(!user) redirect("/login")
-
-  const {data:profile} = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
-    .select("is_superadmin")
-    .eq("id",user.id)
-    .single()
+    .select("id, first_name, last_name, email, is_superadmin")
+    .eq("id", user.id)
+    .single();
 
-  if(!profile?.is_superadmin){
-    redirect("/login")
+  if (error || !profile?.is_superadmin) {
+    redirect("/forbidden");
   }
 
-  return {supabase,user,profile}
+  return { supabase, user, profile };
+}
+
+export function profileName(profile: {
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  id?: string | null;
+}) {
+  const full = [profile.first_name, profile.last_name].filter(Boolean).join(" ").trim();
+  return full || profile.email || profile.id || "Unknown user";
 }

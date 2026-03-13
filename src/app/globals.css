@@ -1,9 +1,15 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body{
-  background:#f8fafc;
-  font-family: system-ui, -apple-system, sans-serif;
+body {
+  color: #e5e7eb;
+  background:
+    radial-gradient(circle at top left, rgba(59,130,246,.18), transparent 24%),
+    radial-gradient(circle at top right, rgba(99,102,241,.16), transparent 28%),
+    linear-gradient(180deg, #060b18 0%, #0b1020 45%, #101827 100%);
 }
+
+* { box-sizing: border-box; }
+a { text-decoration: none; color: inherit; }
+table { width: 100%; border-collapse: collapse; }
